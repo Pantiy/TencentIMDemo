@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">TencentIMDemo</string>
+    <string name="user_id_hint">请输入账号</string>
+    <string name="login">登录</string>
+    <string name="send_user_id_hint">请输入发送目标的账号</string>
+    <string name="input_message_hint">请输入需要发送的消息</string>
+    <string name="send">发送</string>
+    <string name="receive_message">接收到的消息</string>
+</resources>
