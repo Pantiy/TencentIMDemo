@@ -1,4 +1,4 @@
-package me.pantiy.tencentimdemo;
+package me.pantiy.tencentimdemo.global;
 
 import android.app.Application;
 

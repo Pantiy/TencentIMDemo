@@ -1,12 +1,16 @@
 package me.pantiy.tencentimdemo;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.tencent.imsdk.TIMCallBack;
 import com.tencent.imsdk.TIMConversation;
 import com.tencent.imsdk.TIMConversationType;
 import com.tencent.imsdk.TIMElem;
@@ -22,42 +26,30 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import me.pantiy.tencentimdemo.utils.ToastUtil;
 
-public class MainActivity extends AppCompatActivity {
+/**
+ * Created by Pantiy on 2018/4/22.
+ * Copyright © 2016 All rights Reserved by Pantiy
+ */
+public class MessageFragment extends Fragment {
 
-    @BindView(R.id.userId_editText) EditText mUserIdEt;
-    @BindView(R.id.login_button) Button mLoginBtn;
     @BindView(R.id.aimUserId_editText) EditText mAimUserIdEt;
     @BindView(R.id.messageContent_editText) EditText mMessageContentEt;
     @BindView(R.id.sendMessage_button) Button mSendMessageBtn;
     @BindView(R.id.receiveMessage_textView) TextView mReceiveMessageTv;
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
-        onReceiveMessage();
-    }
-
-    @OnClick(R.id.login_button)
-    void login() {
-        String userId = mUserIdEt.getText().toString();
-        TIMManager.getInstance().login(userId, SigUtil.touch().getUserSig(userId), new TIMCallBack() {
-            @Override
-            public void onError(int i, String s) {
-                ToastUtil.shortToast(MainActivity.this, "登陆失败");
-            }
-
-            @Override
-            public void onSuccess() {
-                ToastUtil.shortToast(MainActivity.this, "登陆成功");
-            }
-        });
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_message, container, false);
+        ButterKnife.bind(this, view);
+        setTIMMessageListener();
+        return view;
     }
 
     @OnClick(R.id.sendMessage_button)
-    void sendMessage() {
+    void onSendMessageBtnClick() {
         TIMConversation timConversation = TIMManager.getInstance().getConversation(
                 TIMConversationType.C2C, mAimUserIdEt.getText().toString());
         TIMMessage timMessage = new TIMMessage();
@@ -67,28 +59,26 @@ public class MainActivity extends AppCompatActivity {
         timConversation.sendMessage(timMessage, new TIMValueCallBack<TIMMessage>() {
             @Override
             public void onError(int i, String s) {
-                ToastUtil.shortToast(MainActivity.this, "发送失败");
+                ToastUtil.shortToast(getContext(), "发送失败");
             }
 
             @Override
             public void onSuccess(TIMMessage timMessage) {
-                ToastUtil.shortToast(MainActivity.this, "发送成功");
+                ToastUtil.shortToast(getContext(), "发送成功");
             }
         });
     }
 
-    private void onReceiveMessage() {
+    private void setTIMMessageListener() {
         TIMManager.getInstance().addMessageListener(new TIMMessageListener() {
             @Override
             public boolean onNewMessages(List<TIMMessage> list) {
-                ToastUtil.shortToast(MainActivity.this, "收到消息");
                 for (TIMMessage timMessage : list) {
-                    for (int i = 0; i < timMessage.getElementCount(); i++) {
-                        TIMElem elem = timMessage.getElement(i);
-                        TIMElemType elemType = elem.getType();
-                        if (elemType == TIMElemType.Text) {
-                            TIMTextElem timTextElem = (TIMTextElem) elem;
-                            mReceiveMessageTv.append(timTextElem.getText() + '\n');
+                    long elementCount = timMessage.getElementCount();
+                    for (int i = 0; i < elementCount; i++) {
+                        TIMElem timElem = timMessage.getElement(i);
+                        if (timElem.getType() == TIMElemType.Text) {
+                            mReceiveMessageTv.append(((TIMTextElem)timElem).getText());
                         }
                     }
                 }

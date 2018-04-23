@@ -1,4 +1,4 @@
-package me.pantiy.tencentimdemo;
+package me.pantiy.tencentimdemo.utils;
 
 import android.content.Context;
 import android.widget.Toast;
